@@ -3,10 +3,12 @@ const app = express();
 const PORT = 8080; // default port 8080
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 
 app.set("view engine", "ejs");
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 ///Function to generate random Alpha-Numerical id
 const generateRandomString = function () {
@@ -32,20 +34,34 @@ app.get("/hello", (req, res) => {
 });
 
 //To add all URLS from URLDatabase
+///To save cookie
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  res.cookie("username", username);
+  res.redirect("urls/");
+});
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies["username"],
+  };
   res.render("urls_index", templateVars);
 });
 
 // GET Request to create longURL
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies["username"],
+    // ... any other vars
+  };
+  res.render("urls_new", templateVars);
 });
 
 ////Get Request to read the Particular id
 app.get("/urls/:id", (req, res) => {
-  const id = req.params.id
+  const id = req.params.id;
   const templateVars = {
+    username: req.cookies["username"],
     id: id,
     longURL: urlDatabase[id],
   };
@@ -69,19 +85,31 @@ app.get("/u/:id", (req, res) => {
 
 ///To delete the URL resource
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id]
-  res.redirect("/urls")
-})
+  delete urlDatabase[req.params.id];
+  res.redirect("/urls");
+});
 
-///To Get the Updated Resource
-app.post("/urls/:id", (req, res)=>{
-  const id = req.params.id
+///To Add the Updated Resource
+app.post("/urls/:id", (req, res) => {
+  const id = req.params.id;
   // console.log(req.params.id)
-  const longURL = req.body.longURL
-  console.log(longURL)
-  urlDatabase[id] = longURL
-  res.redirect(`/urls/`)
-})
+  const longURL = req.body.longURL;
+  console.log(longURL);
+  urlDatabase[id] = longURL;
+  res.redirect(`/urls/${id}`);
+});
+
+// /To handle the logins
+app.post("/login", (req, res) => {
+  res.redirect("/urls");
+});
+
+// /To handle the LogOuts and clear cookies
+app.post("/logout", (req, res) => {
+  const username = res.cookie["username"];
+  res.clearCookie("username", username);
+  res.redirect("/urls");
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
