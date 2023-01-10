@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const morgan = require("morgan");
-const bodyParser = require("body-parser");
+// const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
 app.set("view engine", "ejs");
@@ -18,6 +18,18 @@ const generateRandomString = function () {
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
+};
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
 };
 
 /// Get Requests
@@ -110,6 +122,25 @@ app.post("/logout", (req, res) => {
   res.clearCookie("username", username);
   res.redirect("/urls");
 });
+///To Register in the app
+app.get("/register", (req, res) => {
+ res.render("urls_register")
+})
+///To handle the registration page
+app.post("/register", (req, res) => {
+ const userEmail = req.body.email
+ const userPassword = req.body.password
+ const user_id = generateRandomString()
+users.user = {
+  user_id : user_id ,
+  email : userEmail,
+  password : userPassword
+}
+res.cookie("user_id", user_id )
+console.log(users.user)
+res.redirect("/urls")
+
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
