@@ -31,6 +31,15 @@ const users = {
     password: "dishwasher-funk",
   },
 };
+// //// Function to get the email-id
+const getUserByEmail = function (email) {
+  for (let id in users) {
+    console.log(id)
+    if (users[id].email === email ){
+      return users[id];
+    }
+  }
+}
 
 /// Get Requests
 app.get("/", (req, res) => {
@@ -55,7 +64,7 @@ app.post("/login", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = {
-    user_id: users[req.cookies.user_id],
+    user: users[req.cookies.user_id],
     urls: urlDatabase,
   };
   res.render("urls_index", templateVars);
@@ -64,7 +73,7 @@ app.get("/urls", (req, res) => {
 // GET Request to create longURL
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    user_id: users[req.cookies.user_id],
+    user: users[req.cookies.user_id],
   };
   res.render("urls_new", templateVars);
 });
@@ -73,7 +82,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const templateVars = {
-    user_id: users[req.cookies.user_id],
+    user : users[req.cookies.user_id],
     id: id,
     longURL: urlDatabase[id],
   };
@@ -112,13 +121,14 @@ app.post("/urls/:id", (req, res) => {
 });
 
 // /To handle the logins
-app.post("/login", (req, res) => {
-  res.redirect("/urls");
+app.get("/login", (req, res) => {
+  const user = users[req.cookies.user_id]
+  res.render("login", { user });
 });
 
 // /To handle the LogOuts and clear cookies
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id", req.cookies.user_id);
+  res.clearCookie('user_id');
   res.redirect("/urls");
 });
 
@@ -132,21 +142,32 @@ app.post("/register", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
   const user_id = generateRandomString();
+
+
+  if (userEmail.length === 0 || userPassword.length === 0) {
+    return res.status(400).send("Invalid Email or Invalid Password");
+  }
+
+   if(getUserByEmail(req.body.email)) {
+    res.status(400).send("Email already exists")
+    return
+  }
   users[user_id] = {
     id: user_id,
     email: userEmail,
     password: userPassword,
   };
-  if (userEmail.length === 0 || userPassword.length === 0) {
-    return res.status(400).send("Bad Request");
-  }
-  if (userEmail === users[user_id]["email"]) {
-    return res.status(400).send("Bad Request");
-  }
-  // console.log(users);
+ 
+  console.log(users);
   res.cookie("user_id", user_id);
   res.redirect("/urls");
 });
+
+///To handle login in seperate page
+app.get("/login", (req, res) => {
+  const user = users[req.cookies.user_id]
+  res.render("login", {user})
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
