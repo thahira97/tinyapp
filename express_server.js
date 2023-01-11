@@ -56,10 +56,11 @@ app.get("/hello", (req, res) => {
 
 //To add all URLS from URLDatabase
 ///To save cookie
-app.post("/login", (req, res) => {
-  // const username = req.body.username;
-  // res.cookie("username", username);
-  res.redirect("urls/");
+app.post("/login", (req, res) => { //-----------------------------
+//   const user = req.body.email;
+//  const userinfo = getUserByEmail(user)
+  res.cookie("username", username);
+  res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
@@ -122,8 +123,10 @@ app.post("/urls/:id", (req, res) => {
 
 // /To handle the logins
 app.get("/login", (req, res) => {
-  const user = users[req.cookies.user_id]
-  res.render("login", { user });
+  const templateVars = {
+    user: users[req.cookies.user_id],
+  };
+  res.render("login", templateVars );
 });
 
 // /To handle the LogOuts and clear cookies
@@ -134,15 +137,16 @@ app.post("/logout", (req, res) => {
 
 ///To Register in the app
 app.get("/register", (req, res) => {
-  res.render("urls_register");
+  const templateVars = {
+    user: users[req.cookies.user_id],
+  };
+  res.render("urls_register", templateVars);
 });
 
 ///To handle the registration page
 app.post("/register", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  const user_id = generateRandomString();
-
 
   if (userEmail.length === 0 || userPassword.length === 0) {
     return res.status(400).send("Invalid Email or Invalid Password");
@@ -152,22 +156,25 @@ app.post("/register", (req, res) => {
     res.status(400).send("Email already exists")
     return
   }
+  const user_id = generateRandomString();
   users[user_id] = {
     id: user_id,
     email: userEmail,
     password: userPassword,
   };
  
-  console.log(users);
+  // console.log(users);
   res.cookie("user_id", user_id);
   res.redirect("/urls");
 });
 
 ///To handle login in seperate page
-app.get("/login", (req, res) => {
-  const user = users[req.cookies.user_id]
-  res.render("login", {user})
-})
+// app.get("/login", (req, res) => {
+//   console.log('usedidcookie',req.cookies.user_id)
+//   const user = users[req.cookies.user_id]
+//   console.log('user', user)
+//   res.render("login", user)
+// })
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
