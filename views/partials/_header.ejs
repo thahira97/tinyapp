@@ -19,26 +19,21 @@
       </div>
     </div>
     <% if(!user){ %>
-    <a class="nav-item nav-link" href="/register"
-      ><button
-        class="btn btn-success"
-        style="
-          color: black;
-          border: 0.1em solid black;
-          height: fit-content;
-          margin-right: 0.3em;
-        "
-      >
-        Signup
-      </button></a
-    >
-
     <a class="nav-item nav-link" href="/login"
       ><button
         class="btn btn-success"
-        style="color: black; border: 0.1em solid black; height: fit-content"
+        style="color: whitesmoke; height: fit-content; margin-right: 0.3em"
       >
         Login
+      </button></a
+    >
+
+    <a class="nav-item nav-link" href="/register"
+      ><button
+        class="btn btn-success"
+        style="color: white; height: fit-content"
+      >
+        Signup
       </button></a
     >
     <!-- <form class="d-flex" action="/login" method="POST" >
@@ -49,10 +44,11 @@
     <% } else{ %>
 
     <form method="POST" action="/logout">
-      <em>Logged in as: <%= user.email %>  </em>
-      
-      <button type="submit" class="btn btn-primary" >Logout</button> </form>
-    
+      <div style="color: white; font-family: Arial, Helvetica, sans-serif " >Logged in as: <%= user.email %>
+
+      <button type="submit" class="btn btn-primary">Logout</button> </div>
+    </form>
+
     <% } %>
   </nav>
 </header>

@@ -35,11 +35,11 @@ const users = {
 const getUserByEmail = function (email) {
   for (let id in users) {
     // console.log(id)
-    if (users[id].email === email ){
+    if (users[id].email === email) {
       return users[id];
     }
   }
-}
+};
 
 /// Get Requests
 app.get("/", (req, res) => {
@@ -74,7 +74,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const templateVars = {
-    user : users[req.cookies.user_id],
+    user: users[req.cookies.user_id],
     id: id,
     longURL: urlDatabase[id],
   };
@@ -117,13 +117,13 @@ app.get("/login", (req, res) => {
   const templateVars = {
     user: users[req.cookies.user_id],
   };
-  res.render("login", templateVars );
+  res.render("login", templateVars);
 });
 
 // /To handle the LogOuts and clear cookies
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id');
-  res.redirect("/urls");
+  res.clearCookie("user_id");
+  res.redirect("/login");
 });
 
 ///To Register in the app
@@ -143,9 +143,9 @@ app.post("/register", (req, res) => {
     return res.status(400).send("Invalid Email or Invalid Password");
   }
 
-   if(getUserByEmail(req.body.email)) {
-    res.status(400).send("Email already exists")
-    return
+  if (getUserByEmail(req.body.email)) {
+    res.status(400).send("Email already exists");
+    return;
   }
   const user_id = generateRandomString();
   users[user_id] = {
@@ -153,32 +153,32 @@ app.post("/register", (req, res) => {
     email: userEmail,
     password: userPassword,
   };
- 
+
   // console.log(users);
   res.cookie("user_id", user_id);
   res.redirect("/urls");
 });
 /////To handle the login registration page
-app.post("/login", (req, res) => { //-----------------------------
+app.post("/login", (req, res) => {
+  //-----------------------------
   const userEmail = req.body.email;
-  const userPassword = req.body.password
- const userinfo = getUserByEmail(userEmail)
+  const userPassword = req.body.password;
+  const userinfo = getUserByEmail(userEmail);
   // console.log(userinfo.id)
 
-if(!userinfo) {
-  res.status(400).send("Email cannot be found")
-}
-else {
- if (userinfo.email === userEmail) {
-   if(userinfo.password !== userPassword){
-    console.log(userPassword)
-  res.status(400).send("Wrong Password")}
- 
+  if (!userinfo) {
+    res.status(400).send("Email cannot be found");
+  } else {
+    if (userinfo.email === userEmail) {
+      if (userinfo.password !== userPassword) {
+        console.log(userPassword);
+        res.status(400).send("Wrong Password");
+      }
 
-  res.cookie("user_id",userinfo.id)
-  res.redirect("/urls");
-   }
-}
+      res.cookie("user_id", userinfo.id);
+      res.redirect("/urls");
+    }
+  }
 });
 
 app.listen(PORT, () => {
