@@ -34,7 +34,7 @@ const users = {
 // //// Function to get the email-id
 const getUserByEmail = function (email) {
   for (let id in users) {
-    console.log(id)
+    // console.log(id)
     if (users[id].email === email ){
       return users[id];
     }
@@ -52,15 +52,6 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-//To add all URLS from URLDatabase
-///To save cookie
-app.post("/login", (req, res) => { //-----------------------------
-//   const user = req.body.email;
-//  const userinfo = getUserByEmail(user)
-  res.cookie("username", username);
-  res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
@@ -167,14 +158,28 @@ app.post("/register", (req, res) => {
   res.cookie("user_id", user_id);
   res.redirect("/urls");
 });
+/////To handle the login registration page
+app.post("/login", (req, res) => { //-----------------------------
+  const userEmail = req.body.email;
+  const userPassword = req.body.password
+ const userinfo = getUserByEmail(userEmail)
+  // console.log(userinfo.id)
 
-///To handle login in seperate page
-// app.get("/login", (req, res) => {
-//   console.log('usedidcookie',req.cookies.user_id)
-//   const user = users[req.cookies.user_id]
-//   console.log('user', user)
-//   res.render("login", user)
-// })
+if(!userinfo) {
+  res.status(400).send("Email cannot be found")
+}
+else {
+ if (userinfo.email === userEmail) {
+   if(userinfo.password !== userPassword){
+    console.log(userPassword)
+  res.status(400).send("Wrong Password")}
+ 
+
+  res.cookie("user_id",userinfo.id)
+  res.redirect("/urls");
+   }
+}
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
