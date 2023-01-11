@@ -114,10 +114,13 @@ app.post("/urls/:id", (req, res) => {
 
 // /To handle the logins
 app.get("/login", (req, res) => {
-  const templateVars = {
+  if (!req.cookies.user_id){
+    const templateVars = {
     user: users[req.cookies.user_id],
   };
   res.render("login", templateVars);
+  }
+  res.redirect("/urls")
 });
 
 // /To handle the LogOuts and clear cookies
@@ -128,10 +131,13 @@ app.post("/logout", (req, res) => {
 
 ///To Register in the app
 app.get("/register", (req, res) => {
+  if (!req.cookies.user_id){
   const templateVars = {
     user: users[req.cookies.user_id],
   };
   res.render("urls_register", templateVars);
+}
+  res.redirect("/urls")
 });
 
 ///To handle the registration page
