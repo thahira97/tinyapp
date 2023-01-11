@@ -48,14 +48,15 @@ app.get("/hello", (req, res) => {
 //To add all URLS from URLDatabase
 ///To save cookie
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username);
+  // const username = req.body.username;
+  // res.cookie("username", username);
   res.redirect("urls/");
 });
 app.get("/urls", (req, res) => {
   const templateVars = {
+    user_id : users[req.cookies.user_id],
     urls: urlDatabase,
-    username: req.cookies["username"],
+    
   };
   res.render("urls_index", templateVars);
 });
@@ -63,8 +64,7 @@ app.get("/urls", (req, res) => {
 // GET Request to create longURL
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
-    // ... any other vars
+    user_id : users[req.cookies.user_id]
   };
   res.render("urls_new", templateVars);
 });
@@ -73,7 +73,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const templateVars = {
-    username: req.cookies["username"],
+    user_id : users[req.cookies.user_id],
     id: id,
     longURL: urlDatabase[id],
   };
@@ -118,8 +118,7 @@ app.post("/login", (req, res) => {
 
 // /To handle the LogOuts and clear cookies
 app.post("/logout", (req, res) => {
-  const username = res.cookie["username"];
-  res.clearCookie("username", username);
+  res.clearCookie("user_id", req.cookies.user_id);
   res.redirect("/urls");
 });
 ///To Register in the app
@@ -129,17 +128,16 @@ app.get("/register", (req, res) => {
 ///To handle the registration page
 app.post("/register", (req, res) => {
  const userEmail = req.body.email
- const userPassword = req.body.password
+ const userPassword = req.body.email
  const user_id = generateRandomString()
-users.user = {
-  user_id : user_id ,
+users[user_id] = {
+  id : user_id ,
   email : userEmail,
   password : userPassword
 }
+console.log(users)
 res.cookie("user_id", user_id )
-console.log(users.user)
 res.redirect("/urls")
-
 })
 
 app.listen(PORT, () => {
