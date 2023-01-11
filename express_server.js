@@ -2,7 +2,6 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const morgan = require("morgan");
-// const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
 app.set("view engine", "ejs");
@@ -10,7 +9,7 @@ app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-///Function to generate random Alpha-Numerical id
+///Function to generate random id
 const generateRandomString = function () {
   return Math.random().toString(36).substring(2, 8);
 };
@@ -31,7 +30,8 @@ const users = {
     password: "dishwasher-funk",
   },
 };
-// //// Function to get the email-id
+
+////// Function to get the email-id
 const getUserByEmail = function (email) {
   for (let id in users) {
     // console.log(id)
@@ -107,7 +107,7 @@ app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   // console.log(req.params.id)
   const longURL = req.body.longURL;
-  console.log(longURL);
+  // console.log(longURL);
   urlDatabase[id] = longURL;
   res.redirect(`/urls/${id}`);
 });
@@ -158,6 +158,7 @@ app.post("/register", (req, res) => {
   res.cookie("user_id", user_id);
   res.redirect("/urls");
 });
+
 /////To handle the login registration page
 app.post("/login", (req, res) => {
   //-----------------------------
@@ -167,17 +168,15 @@ app.post("/login", (req, res) => {
   // console.log(userinfo.id)
 
   if (!userinfo) {
-    res.status(400).send("Email cannot be found");
+    res.status(400).send("User cannot be found");
   } else {
-    if (userinfo.email === userEmail) {
-      if (userinfo.password !== userPassword) {
-        console.log(userPassword);
-        res.status(400).send("Wrong Password");
-      }
-
-      res.cookie("user_id", userinfo.id);
-      res.redirect("/urls");
+    if (userinfo.email !== userEmail || userinfo.password !== userPassword) {
+      // console.log(userPassword);
+      res.status(400).send("Wrong Password or Invalid email-id");
     }
+
+    res.cookie("user_id", userinfo.id);
+    res.redirect("/urls");
   }
 });
 
