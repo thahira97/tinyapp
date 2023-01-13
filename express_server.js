@@ -29,6 +29,11 @@ const users = {
     email: "user2@example.com",
     password: "dishwasher-funk",
   },
+  nmwcb2: {
+    id: "nmwcb2",
+    email: "thameemsh.ca@gmail.com",
+    password: "1234",
+  },
 };
 
 ////// Function to get the email-id
@@ -59,11 +64,15 @@ app.get("/urls", (req, res) => {
     user: users[req.cookies.user_id],
     urls: urlDatabase,
   };
+
   res.render("urls_index", templateVars);
 });
 
 // GET Request to create longURL
 app.get("/urls/new", (req, res) => {
+  if (!req.cookies.user_id) {
+    res.redirect("/login");
+  }
   const templateVars = {
     user: users[req.cookies.user_id],
   };
@@ -92,35 +101,45 @@ app.post("/urls", (req, res) => {
 
 // Redirecting the shortURL link to longURL page
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
+  if (urlDatabase[req.params.id]) {
+    const longURL = urlDatabase[req.params.id];
+    res.redirect(longURL);
+  }
+  res.status(404).send("ID doesn't exist");
 });
 
 ///To delete the URL resource
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect("/urls");
+  if (users[req.cookies.user_id]) {
+    delete urlDatabase[req.params.id];
+    res.redirect("/urls");
+  }
+  res.status(400).send("Oops! You cannot Access the page");
 });
 
 ///To Add the Updated Resource
 app.post("/urls/:id", (req, res) => {
-  const id = req.params.id;
-  // console.log(req.params.id)
-  const longURL = req.body.longURL;
-  // console.log(longURL);
-  urlDatabase[id] = longURL;
-  res.redirect(`/urls/${id}`);
+  if (users[req.cookies.user_id]) {
+    const id = req.params.id;
+    // console.log(req.params.id)
+    const longURL = req.body.longURL;
+    // console.log(longURL);
+    urlDatabase[id] = longURL;
+    res.redirect(`/urls/${id}`);
+  } else {
+    res.status(400).send("Oops! You cannot Access the page");
+  }
 });
 
 // /To handle the logins
 app.get("/login", (req, res) => {
-  if (!req.cookies.user_id){
+  if (!req.cookies.user_id) {
     const templateVars = {
-    user: users[req.cookies.user_id],
-  };
-  res.render("login", templateVars);
+      user: users[req.cookies.user_id],
+    };
+    res.render("login", templateVars);
   }
-  res.redirect("/urls")
+  res.redirect("/urls");
 });
 
 // /To handle the LogOuts and clear cookies
@@ -131,13 +150,13 @@ app.post("/logout", (req, res) => {
 
 ///To Register in the app
 app.get("/register", (req, res) => {
-  if (!req.cookies.user_id){
-  const templateVars = {
-    user: users[req.cookies.user_id],
-  };
-  res.render("urls_register", templateVars);
-}
-  res.redirect("/urls")
+  if (!req.cookies.user_id) {
+    const templateVars = {
+      user: users[req.cookies.user_id],
+    };
+    res.render("urls_register", templateVars);
+  }
+  res.redirect("/urls");
 });
 
 ///To handle the registration page
