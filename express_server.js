@@ -15,8 +15,14 @@ const generateRandomString = function () {
 };
 
 const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
+  b2xVn2: {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "userRandomID",
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: "user2RandomID",
+  },
 };
 const users = {
   userRandomID: {
@@ -85,7 +91,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     user: users[req.cookies.user_id],
     id: id,
-    longURL: urlDatabase[id],
+    longURL: urlDatabase[id].longURL,
   };
   res.render("urls_show", templateVars);
 });
@@ -94,7 +100,10 @@ app.get("/urls/:id", (req, res) => {
 app.post("/urls", (req, res) => {
   const id = generateRandomString();
   const longURL = req.body.longURL;
-  urlDatabase[id] = longURL;
+  urlDatabase[id] = {
+    longURL: longURL,
+    userID: req.cookies.user_id,
+  };
   // console.log(req.body)
   res.redirect(`urls/${id}`);
 });
@@ -102,7 +111,7 @@ app.post("/urls", (req, res) => {
 // Redirecting the shortURL link to longURL page
 app.get("/u/:id", (req, res) => {
   if (urlDatabase[req.params.id]) {
-    const longURL = urlDatabase[req.params.id];
+    const longURL = urlDatabase[req.params.id].longURL;
     res.redirect(longURL);
   }
   res.status(404).send("ID doesn't exist");
@@ -124,7 +133,7 @@ app.post("/urls/:id", (req, res) => {
     // console.log(req.params.id)
     const longURL = req.body.longURL;
     // console.log(longURL);
-    urlDatabase[id] = longURL;
+    urlDatabase[id].longURL = longURL;
     res.redirect(`/urls/${id}`);
   } else {
     res.status(400).send("Oops! You cannot Access the page");
