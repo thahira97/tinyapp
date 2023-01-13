@@ -23,6 +23,10 @@ const urlDatabase = {
     longURL: "http://www.google.com",
     userID: "user2RandomID",
   },
+  "lolkhd7": {
+    longURL: "http://www.ik.com",
+    userID: "nmwcb2",
+  }
 };
 const users = {
   userRandomID: {
@@ -51,6 +55,16 @@ const getUserByEmail = function (email) {
     }
   }
 };
+////Function to compare the userid 
+const urlsForUser = function (urlDatabase, id) {
+  let userURL = {};
+  // let urlDatabaseKeys = Object.keys(urlDatabase)
+  for (const key in urlDatabase ) {
+    if ( urlDatabase[key].userID === id){
+      userURL[key] = urlDatabase[key]
+  }
+}return userURL
+}
 
 /// Get Requests
 app.get("/", (req, res) => {
@@ -66,12 +80,17 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  if (users[req.cookies.user_id]){
   const templateVars = {
     user: users[req.cookies.user_id],
-    urls: urlDatabase,
+    urls:  urlsForUser(urlDatabase, req.cookies.user_id),
   };
-
+  
   res.render("urls_index", templateVars);
+}
+  else {
+    res.redirect("/login")
+  }
 });
 
 // GET Request to create longURL
@@ -88,12 +107,20 @@ app.get("/urls/new", (req, res) => {
 ////Get Request to read the Particular id
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
+  const longURL = req.body.longURL
+  const userID = req.body.userID
+  if (req.cookies.user_id === urlDatabase[id].userID) {
   const templateVars = {
     user: users[req.cookies.user_id],
     id: id,
     longURL: urlDatabase[id].longURL,
+    userID : urlDatabase[id].userID
   };
   res.render("urls_show", templateVars);
+}
+else {
+  res.status(400).send("You Cannot Access the page or You do not own the URL")
+}
 });
 
 /// POST Request for the submit form to get the short url
