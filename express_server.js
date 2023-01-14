@@ -2,9 +2,11 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const morgan = require("morgan");
-// const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
+const getUserByEmail = require('./helpers')
+
+
 
 app.set("view engine", "ejs");
 app.use(morgan("dev"));
@@ -55,14 +57,6 @@ const generateRandomString = function () {
   return Math.random().toString(36).substring(2, 8);
 };
 
-////// Function to get the email-id
-const getUserByEmail = function (email, userDatabase) {
-  for (let id in userDatabase) {
-    if (userDatabase[id].email === email ) {
-      return userDatabase[id];
-    }
-  }return false
-};
 ////Function to compare the userid
 const urlsForUser = function (urlDatabase, id) {
   let userURL = {};
@@ -217,9 +211,9 @@ app.post("/register", (req, res) => {
     return res.status(400).send("Invalid Email or Invalid Password");
   }
 
-  if (getUserByEmail(req.body.email)) {
-    res.status(400).send("Email already exists");
-    return;
+  if (getUserByEmail(userEmail, users)) {
+    return res.status(400).send("Email already exists");
+    
   }
   const user_id = generateRandomString();
   const hashedPassword = bcrypt.hashSync(userPassword, 10);
@@ -238,7 +232,7 @@ app.post("/login", (req, res) => {
   //-----------------------------
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  const userinfo = getUserByEmail(userEmail);
+  const userinfo = getUserByEmail(userEmail, users);
   
 
   if (!userinfo) {
@@ -257,3 +251,4 @@ app.post("/login", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
