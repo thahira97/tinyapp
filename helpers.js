@@ -5,6 +5,24 @@ const getUserByEmail = function (email, userDatabase) {
       return user;
     }
   }
-  return undefined;
+  return false;
 };
-module.exports = getUserByEmail;
+
+///Function to generate random id
+const generateRandomString = function () {
+  return Math.random().toString(36).substring(2, 8);
+};
+
+////Function to compare the userid
+const urlsForUser = function (urlDatabase, id) {
+  let userURL = {};
+  // let urlDatabaseKeys = Object.keys(urlDatabase)
+  for (const key in urlDatabase) {
+    if (urlDatabase[key].userID === id) {
+      userURL[key] = urlDatabase[key];
+    }
+  }
+  return userURL;
+};
+
+module.exports = { getUserByEmail, generateRandomString, urlsForUser};
