@@ -181,7 +181,21 @@ app.post("/urls/:id/delete", (req, res) => {
   }
   res.status(401).send("Oops! You cannot Access the page");
 });
-
+///Get request to delete path
+app.get("/urls/:id/delete", (req, res) => {
+  const id = req.params.id;
+  if (!users[req.session.user_id]) {
+    res.status(401).send("No Authorization");
+  }
+  if (
+    users[req.session.user_id] && (req.session.user_id !== urlDatabase[id].userID)
+  ) {
+    res.status(401).send("Authorization Error");
+  }
+  else {
+    res.redirect('/urls')
+  }
+});
 ///To Add the Updated Resource
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
@@ -264,7 +278,7 @@ app.post("/login", (req, res) => {
     return res
       .status(400)
       .send(
-        "User cannot be found, <a href= '/register'> Return to Login Page <a>"
+        "User cannot be found, <a href= '/login'> Return to Login Page <a>"
       );
   }
   if (!bcrypt.compareSync(userPassword, users[user_id].password)) {
